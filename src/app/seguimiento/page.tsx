@@ -49,6 +49,11 @@ export default function SeguimientoPage() {
   const [error, setError] = useState('')
   const [result, setResult] = useState<SeguimientoDenunciaResponse | null>(null)
 
+const estadoActual = result?.estadoActual?.toUpperCase()
+const archivoSolucion = result?.soluciones?.[0]?.archivos?.[0]
+const archivoSolucionUrl = archivoSolucion?.urlArchivo
+  ? `${process.env.NEXT_PUBLIC_API_URL}${archivoSolucion.urlArchivo}`
+  : null
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
 
@@ -159,7 +164,7 @@ export default function SeguimientoPage() {
                 Importante
               </p>
               <p className="mt-3 text-sm leading-7 text-slate-700">
-                Verifica que el código esté escrito correctamente, respetando letras, números y guiones.
+                Verifica que el código esté escrito correctamente.
               </p>
             </div>
 
@@ -263,14 +268,40 @@ export default function SeguimientoPage() {
     </p>
   </div>
 
-  <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+<div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+  {estadoActual?.includes('SOLUCIONADO') && archivoSolucionUrl ? (
+    <div className="mt-2">
+      <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-green-600">
+        Evidencia de solución
+      </p>
+
+      {archivoSolucion?.tipoArchivo?.startsWith('image/') ? (
+        <img
+          src={archivoSolucionUrl}
+          alt="Evidencia de solución"
+          className="w-full max-h-60 rounded-md border object-cover"
+        />
+      ) : (
+        <a
+          href={archivoSolucionUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center rounded-xl border border-[#22B7F2] px-4 py-3 text-sm font-semibold text-[#22B7F2] transition hover:bg-[#22B7F2] hover:text-white"
+        >
+          Ver archivo adjunto
+        </a>
+      )}
+    </div>
+  ) : (
     <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
       Tipo de denuncia
     </p>
-    <p className="mt-2 text-sm text-slate-700">
-      {result.denuncia.anonimo ? 'Denuncia anónima' : 'Denuncia identificada'}
-    </p>
-  </div>
+  )}
+
+  <p className="mt-2 text-sm text-slate-700">
+    {result.denuncia.anonimo ? 'Denuncia anónima' : 'Denuncia identificada'}
+  </p>
+</div>
 
   {result.denuncia.detalleCategoriaOtro && (
     <div className="mt-4 rounded-2xl border border-[#F2DEA2] bg-[#F2DEA2]/40 p-4">

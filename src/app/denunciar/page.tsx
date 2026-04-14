@@ -50,7 +50,8 @@ export default function DenunciarPage() {
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [showSuccessModal, setShowSuccessModal] = useState(false)
-
+const [showAnonWarning, setShowAnonWarning] = useState(false)
+const [countdown, setCountdown] = useState(5)
   useEffect(() => {
     const loadCategorias = async () => {
       try {
@@ -96,15 +97,31 @@ export default function DenunciarPage() {
     }))
   }
 
-  const handleAnonimoChange = (checked: boolean) => {
-    setForm((prev) => ({
-      ...prev,
-      anonimo: checked,
-      celularContacto: checked ? '' : prev.celularContacto,
-      nombresDenunciante: checked ? '' : prev.nombresDenunciante,
-      apellidosDenunciante: checked ? '' : prev.apellidosDenunciante,
-    }))
+const handleAnonimoChange = (checked: boolean) => {
+  setForm((prev) => ({
+    ...prev,
+    anonimo: checked,
+    celularContacto: checked ? '' : prev.celularContacto,
+    nombresDenunciante: checked ? '' : prev.nombresDenunciante,
+    apellidosDenunciante: checked ? '' : prev.apellidosDenunciante,
+  }))
+
+  if (checked) {
+    setShowAnonWarning(true)
+    setCountdown(9)
+
+    let counter = 9
+    const interval = setInterval(() => {
+      counter--
+      setCountdown(counter)
+
+      if (counter === 0) {
+        clearInterval(interval)
+        setShowAnonWarning(false)
+      }
+    }, 1000)
   }
+}
 
   const handleMapSelect = (lat: number, lng: number) => {
     setForm((prev) => ({
@@ -649,7 +666,37 @@ setShowSuccessModal(true)
       </button>
     </div>
   </div>
-)}v
+)}
+{showAnonWarning && (
+  <div className="fixed inset-0 z-[999] flex items-center justify-center">
+    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+
+    <div
+      className="relative z-10 w-full max-w-md rounded-[28px]
+      bg-gradient-to-br from-[#F01D67]/80 to-[#ff4d88]/60
+      backdrop-blur-xl border border-white/20
+      p-6 shadow-[0_25px_60px_rgba(240,29,103,0.35)]"
+    >
+      <div className="text-center text-white">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-xl">
+          ⚠️
+        </div>
+
+        <h3 className="text-xl font-extrabold">
+          Denuncia anónima activada
+        </h3>
+
+        <p className="mt-4 text-sm leading-6 text-white/90">
+          Te recomendamos proporcionar la mayor cantidad de detalles posibles para evitar que la denuncia sea RECHAZADA.
+        </p>
+
+        <p className="mt-4 text-xs text-white/80">
+          Esta ventana se cerrará en <span className="font-bold">{countdown}</span> segundos...
+        </p>
+      </div>
+    </div>
+  </div>
+)}
       <PublicFooter />
     </main>
   )

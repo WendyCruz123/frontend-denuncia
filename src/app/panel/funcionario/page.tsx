@@ -41,7 +41,38 @@ function truncateText(text: string, max = 140) {
   if (text.length <= max) return text
   return `${text.slice(0, max)}...`
 }
+function isImageFile(tipo?: string) {
+  return !!tipo && tipo.startsWith('image/')
+}
 
+function isVideoFile(tipo?: string) {
+  return !!tipo && tipo.startsWith('video/')
+}
+
+function isAudioFile(tipo?: string) {
+  return !!tipo && tipo.startsWith('audio/')
+}
+
+function getFileLabel(tipo?: string) {
+  if (isImageFile(tipo)) return 'Imagen'
+  if (isVideoFile(tipo)) return 'Video'
+  if (isAudioFile(tipo)) return 'Audio'
+  if (tipo === 'application/pdf') return 'PDF'
+  if (
+    tipo === 'application/msword' ||
+    tipo ===
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ) {
+    return 'Word'
+  }
+  return 'Archivo'
+}
+
+function getFileUrl(urlArchivo?: string) {
+  if (!urlArchivo) return '#'
+  if (urlArchivo.startsWith('http')) return urlArchivo
+  return `${process.env.NEXT_PUBLIC_API_URL}${urlArchivo}`
+}
 function getEstadoTotal(items: ResumenPorEstadoItem[], estadoNombre: string) {
   return items.find((item) => item.nombre === estadoNombre)?.total ?? 0
 }
@@ -63,6 +94,7 @@ export default function PanelFuncionarioPage() {
   })
 
   const [selectedDenuncia, setSelectedDenuncia] = useState<PanelDenuncia | null>(null)
+  const [detailDenuncia, setDetailDenuncia] = useState<PanelDenuncia | null>(null)
   const [selectedEstadoId, setSelectedEstadoId] = useState('')
   const [comentario, setComentario] = useState('')
   const [solucionTitulo, setSolucionTitulo] = useState('')
@@ -201,6 +233,9 @@ export default function PanelFuncionarioPage() {
     setModalError('')
     setActionLoading(false)
   }
+  const closeDetailModal = () => {
+  setDetailDenuncia(null)
+}
 
   const openGestionModal = (denuncia: PanelDenuncia) => {
     const solucion = denuncia.soluciones?.[0]
@@ -570,15 +605,27 @@ export default function PanelFuncionarioPage() {
                               </div>
 
                               <div className="mt-5 border-t border-black/10 pt-4">
-                                <button
-                                  type="button"
-                                  disabled={!puedeGestionar}
-                                  onClick={() => openGestionModal(denuncia)}
-                                  className="w-full border border-[#9f1d20] px-4 py-3 text-sm font-bold uppercase tracking-[0.12em] text-[#9f1d20] transition hover:bg-[#9f1d20] hover:text-white disabled:cursor-not-allowed disabled:border-black/10 disabled:text-neutral-400 disabled:hover:bg-transparent"
-                                >
-                                  {puedeGestionar ? 'Gestionar estado' : 'Sin acciones'}
-                                </button>
-                              </div>
+  <div className="grid gap-3 sm:grid-cols-2">
+<button
+  onClick={() => {
+    console.log('DENUNCIA DETALLE =>', denuncia)
+    console.log('ARCHIVOS DENUNCIA =>', denuncia.archivos)
+    setDetailDenuncia(denuncia)
+  }}
+>
+  Ver más
+</button>
+
+    <button
+      type="button"
+      disabled={!puedeGestionar}
+      onClick={() => openGestionModal(denuncia)}
+      className="w-full border border-[#9f1d20] px-4 py-3 text-sm font-bold uppercase tracking-[0.12em] text-[#9f1d20] transition hover:bg-[#9f1d20] hover:text-white disabled:cursor-not-allowed disabled:border-black/10 disabled:text-neutral-400 disabled:hover:bg-transparent"
+    >
+      {puedeGestionar ? 'Gestionar estado' : 'Sin acciones'}
+    </button>
+  </div>
+</div>
                             </article>
                           )
                         })}
@@ -591,7 +638,254 @@ export default function PanelFuncionarioPage() {
           </section>
         </div>
       </PanelShell>
+      {detailDenuncia && (
+  <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/45 px-4 py-6">
+    <div className="max-h-[95vh] w-full max-w-5xl overflow-y-auto border border-black/10 bg-white shadow-2xl">
+      <div className="border-b border-black/10 px-6 py-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#9f1d20]">
+              Detalle de denuncia
+            </p>
+            <h2 className="mt-2 text-2xl font-bold text-neutral-900">
+              Información completa del caso
+            </h2>
+          </div>
 
+          <button
+            type="button"
+            onClick={closeDetailModal}
+            className="border border-black/10 px-4 py-2 text-sm font-semibold text-neutral-700 transition hover:bg-[#faf8f3]"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+
+      <div className="px-6 py-6">
+        <div className="flex flex-wrap gap-2">
+          <span className="bg-[#9f1d20]/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-[#9f1d20]">
+            {detailDenuncia.categoria?.nombre || 'Sin categoría'}
+          </span>
+          <span className="bg-[#d4af37]/20 px-3 py-1 text-xs font-bold uppercase tracking-wide text-[#755f12]">
+            {detailDenuncia.categoria?.area?.nombre || 'Sin área'}
+          </span>
+          <span className="border border-black/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-neutral-700">
+            {detailDenuncia.historialEstados?.[0]?.estado?.nombre || 'SIN ESTADO'}
+          </span>
+        </div>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="border border-black/10 bg-[#faf8f3] p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
+              Fecha de registro
+            </p>
+            <p className="mt-2 text-sm font-semibold text-neutral-900">
+              {formatDate(detailDenuncia.fechaCreacion)}
+            </p>
+          </div>
+
+          <div className="border border-black/10 bg-[#faf8f3] p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
+              Denunciante
+            </p>
+            <p className="mt-2 text-sm font-semibold text-neutral-900">
+              {detailDenuncia.anonimo
+                ? 'Anónimo'
+                : `${detailDenuncia.nombresDenunciante || ''} ${detailDenuncia.apellidosDenunciante || ''}`.trim() ||
+                  'No registrado'}
+            </p>
+          </div>
+
+          <div className="border border-black/10 bg-[#faf8f3] p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
+              Celular
+            </p>
+            <p className="mt-2 text-sm font-semibold text-neutral-900">
+              {detailDenuncia.celularContacto || 'No disponible'}
+            </p>
+          </div>
+
+          <div className="border border-black/10 bg-[#faf8f3] p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
+              Dirección
+            </p>
+            <p className="mt-2 text-sm font-semibold text-neutral-900">
+              {detailDenuncia.direccionTexto || 'No especificada'}
+            </p>
+          </div>
+
+          <div className="border border-black/10 bg-[#faf8f3] p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
+              Latitud
+            </p>
+            <p className="mt-2 text-sm font-semibold text-neutral-900">
+              {detailDenuncia.latitud ?? 'No disponible'}
+            </p>
+          </div>
+
+          <div className="border border-black/10 bg-[#faf8f3] p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">
+              Longitud
+            </p>
+            <p className="mt-2 text-sm font-semibold text-neutral-900">
+              {detailDenuncia.longitud ?? 'No disponible'}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 border border-black/10 bg-white p-5">
+          <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#9f1d20]">
+            Descripción completa
+          </p>
+          <p className="mt-3 text-sm leading-7 text-neutral-700">
+            {detailDenuncia.descripcion || 'No disponible'}
+          </p>
+        </div>
+
+        {detailDenuncia.archivos?.length > 0 && (
+          <div className="mt-6 border border-black/10 bg-white p-5">
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#9f1d20]">
+                Archivos de la denuncia
+              </p>
+              <span className="text-sm font-semibold text-neutral-600">
+                {detailDenuncia.archivos.length} archivo(s)
+              </span>
+            </div>
+
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
+              {detailDenuncia.archivos.map((file) => (
+                <div
+                  key={file.id}
+                  className="border border-black/10 bg-[#faf8f3] p-4"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-neutral-900">
+                        {file.nombreOriginal || 'Archivo adjunto'}
+                      </p>
+                      <p className="mt-1 text-xs text-neutral-500">
+                        {getFileLabel(file.tipoArchivo)}
+                      </p>
+                    </div>
+
+                    <a
+                      href={getFileUrl(file.urlArchivo)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center border border-[#9f1d20] px-4 py-2 text-xs font-bold uppercase tracking-wide text-[#9f1d20] transition hover:bg-[#9f1d20] hover:text-white"
+                    >
+                      Ver archivo
+                    </a>
+                  </div>
+
+                  {isImageFile(file.tipoArchivo) && (
+                    <img
+                      src={getFileUrl(file.urlArchivo)}
+                      alt={file.nombreOriginal || 'Archivo de denuncia'}
+                      className="mt-4 h-auto w-full border border-black/10 object-cover"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {detailDenuncia.soluciones?.length > 0 && (
+          <div className="mt-6 border border-black/10 bg-white p-5">
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#9f1d20]">
+              Solución registrada
+            </p>
+
+            <div className="mt-4 border border-black/10 bg-[#faf8f3] p-4">
+              <p className="text-sm font-semibold text-neutral-900">
+                {detailDenuncia.soluciones[0].titulo}
+              </p>
+              <p className="mt-3 text-sm leading-7 text-neutral-700">
+                {detailDenuncia.soluciones[0].descripcion}
+              </p>
+            </div>
+
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
+              {detailDenuncia.soluciones[0].archivos.map((file) => (
+                <div
+                  key={file.id}
+                  className="border border-black/10 bg-[#faf8f3] p-4"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-neutral-900">
+                        {file.nombreOriginal || 'Archivo de solución'}
+                      </p>
+                      <p className="mt-1 text-xs text-neutral-500">
+                        {getFileLabel(file.tipoArchivo)}
+                      </p>
+                    </div>
+
+                    <a
+                      href={getFileUrl(file.urlArchivo)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center border border-[#9f1d20] px-4 py-2 text-xs font-bold uppercase tracking-wide text-[#9f1d20] transition hover:bg-[#9f1d20] hover:text-white"
+                    >
+                      Ver archivo
+                    </a>
+                  </div>
+
+                  {isImageFile(file.tipoArchivo) && (
+                    <img
+                      src={getFileUrl(file.urlArchivo)}
+                      alt={file.nombreOriginal || 'Archivo de solución'}
+                      className="mt-4 h-auto w-full border border-black/10 object-cover"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {detailDenuncia.historialEstados?.length > 0 && (
+          <div className="mt-6 border border-black/10 bg-white p-5">
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#9f1d20]">
+              Historial de estados
+            </p>
+
+            <div className="mt-4 space-y-3">
+              {detailDenuncia.historialEstados.map((item) => (
+                <div
+                  key={item.id}
+                  className="border border-black/10 bg-[#faf8f3] px-4 py-3"
+                >
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                    <span className="text-sm font-bold text-neutral-900">
+                      {item.estado.nombre}
+                    </span>
+                    <span className="text-xs text-neutral-500">
+                      {formatDate(item.fechaCambio)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-6 flex justify-end border-t border-black/10 pt-5">
+          <button
+            type="button"
+            onClick={closeDetailModal}
+            className="border border-black/10 px-5 py-3 text-sm font-semibold text-neutral-700 transition hover:bg-[#faf8f3]"
+          >
+            Cerrar detalle
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
       {selectedDenuncia && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 px-4 py-6">
           <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto border border-black/10 bg-white shadow-2xl">
