@@ -47,69 +47,61 @@ export default function HomePage() {
 
       {loading ? (
         <>
-          <section className="bg-gradient-to-br from-[#7f1417] via-[#9f1d20] to-[#c52a2e]">
+          <section className="bg-white">
             <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
               <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
                 <div className="space-y-4">
-                  <div className="h-6 w-40 animate-pulse bg-white/20" />
-                  <div className="h-14 w-full max-w-3xl animate-pulse bg-white/20" />
-                  <div className="h-6 w-full max-w-2xl animate-pulse bg-white/15" />
-                  <div className="h-6 w-[85%] max-w-2xl animate-pulse bg-white/15" />
+                  <div className="h-6 w-40 animate-pulse rounded bg-slate-200" />
+                  <div className="h-14 w-full max-w-3xl animate-pulse rounded bg-slate-200" />
+                  <div className="h-6 w-full max-w-2xl animate-pulse rounded bg-slate-100" />
+                  <div className="h-6 w-[85%] max-w-2xl animate-pulse rounded bg-slate-100" />
                   <div className="mt-8 flex gap-4">
-                    <div className="h-12 w-44 animate-pulse bg-[#d4af37]/70" />
-                    <div className="h-12 w-56 animate-pulse bg-white/20" />
+                    <div className="h-12 w-44 animate-pulse rounded bg-[#F01D67]/30" />
+                    <div className="h-12 w-44 animate-pulse rounded bg-[#22B7F2]/20" />
                   </div>
                 </div>
 
                 <div className="grid gap-4">
-                  <div className="h-40 animate-pulse border border-white/10 bg-white/10" />
-                  <div className="h-40 animate-pulse border border-white/10 bg-white/10" />
+                  <div className="h-40 animate-pulse rounded-2xl border border-slate-200 bg-white" />
+                  <div className="h-40 animate-pulse rounded-2xl border border-slate-200 bg-white" />
                 </div>
               </div>
             </div>
           </section>
 
-          <section className="bg-[#f7f4ee]">
-            <div className="mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8">
-              <div className="h-40 animate-pulse border border-black/10 bg-white" />
-              <div className="h-40 animate-pulse bg-[#9f1d20]" />
-            </div>
-          </section>
-
           <HowItWorks />
 
-          <section className="bg-[#f7f4ee]">
+          <section className="bg-[#f8fafc]">
             <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
               <div className="grid gap-5 lg:grid-cols-3">
-                <div className="h-72 animate-pulse border border-black/10 bg-white" />
-                <div className="h-72 animate-pulse border border-black/10 bg-white" />
-                <div className="h-72 animate-pulse border border-black/10 bg-white" />
+                <div className="h-72 animate-pulse rounded-2xl border border-slate-200 bg-white" />
+                <div className="h-72 animate-pulse rounded-2xl border border-slate-200 bg-white" />
+                <div className="h-72 animate-pulse rounded-2xl border border-slate-200 bg-white" />
               </div>
             </div>
           </section>
         </>
       ) : error ? (
         <>
-          <section className="bg-gradient-to-br from-[#7f1417] via-[#9f1d20] to-[#c52a2e]">
-            <div className="mx-auto max-w-7xl px-4 py-16 text-white sm:px-6 lg:px-8 lg:py-24">
-              <p className="mb-4 inline-block border border-[#d4af37]/50 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.25em] text-[#f3d67a]">
+          <section className="bg-white">
+            <div className="mx-auto max-w-7xl px-4 py-16 text-slate-900 sm:px-6 lg:px-8 lg:py-24">
+              <p className="mb-4 inline-block rounded-full border border-[#22B7F2]/20 bg-[#22B7F2]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.25em] text-[#22B7F2]">
                 Atención ciudadana
               </p>
 
               <h2 className="max-w-4xl text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
-                Sistema público de recepción y seguimiento de denuncias
+                Sistema público de denuncias ciudadanas
               </h2>
 
-              <p className="mt-6 max-w-2xl text-base leading-7 text-white/85 sm:text-lg">
-                Plataforma ciudadana para registrar denuncias y consultar los
-                resultados publicados por la institución.
+              <p className="mt-6 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
+                Plataforma ciudadana para registrar denuncias y consultar resultados publicados.
               </p>
             </div>
           </section>
 
-          <section className="bg-[#f7f4ee]">
+          <section className="bg-[#f8fafc]">
             <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-              <div className="border border-red-200 bg-red-50 p-6 text-red-700">
+              <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700">
                 <h3 className="text-lg font-bold">Error al cargar la información</h3>
                 <p className="mt-2 text-sm leading-7">{error}</p>
               </div>
